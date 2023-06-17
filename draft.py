@@ -139,19 +139,16 @@ def calculate_monthly_spending(username, month, year):
 def calculate_quarterly_income_report(username):
     transactions, _, total_gain, total_loss = view_transactions(username)
     quarterly_report = {}
-    
+
     for transaction in transactions:
-        transaction_date = parse_date(transaction['date'])
-        quarter = (transaction_date.month - 1) // 3 + 1
-        if quarter not in quarterly_report:
-            quarterly_report[quarter] = 0
-        
-        transaction_amount = transaction['amount']
-        if transaction_amount > 0:
-            quarterly_report[quarter] += transaction_amount
+        transaction_date = transaction['date']
+        quarter = f"Q{transaction_date.quarter}-{transaction_date.year}"
+
+        if quarter in quarterly_report:
+            quarterly_report[quarter] += transaction['amount']
         else:
-            quarterly_report[quarter] -= abs(transaction_amount)
-    
+            quarterly_report[quarter] = transaction['amount']
+
     return quarterly_report
 
 # Function to get the account summary for a user
@@ -189,7 +186,8 @@ def generate_income_report():
         next(reader)  # Skip the header row
 
         for row in reader:
-            date = datetime.strptime(row[0], '%Y-%m-%d')
+            date = datetime.strptime(row[0], '%Y %m %d')
+
             amount = float(row[1])
             quarter = get_quarter(date)
 
@@ -244,10 +242,10 @@ elif user_option == '2':
     
                     # Settings
                     while true:
-                        user_input = input(
+                        user_input_settings = input(
                             'Pick one from the following settings options and press ENTER: 1) View profile | 2) Change username | 3) Change password | 4) Change PIN | 5) Deactivate account | 6) View Statements- [1/2/3/4/5/6] ? ')
 
-                        if user_input == '1':
+                        if user_input_settings == '1':
                             print('You picked View profile')
                             with open('profiles.csv', 'r') as csvfile:
                                 csvreader = csv.reader(csvfile, delimiter='|')
@@ -256,7 +254,7 @@ elif user_option == '2':
                                         print(row)
                             break
                         
-                        elif user_input == '2':
+                        elif user_input_settings == '2':
                             print('You picked Change username')
                             new_username = input("Enter new username: ")
 
@@ -279,7 +277,7 @@ elif user_option == '2':
                             print("New username is added to your profile\n ")
 
                           
-                        elif user_input == '3':
+                        elif user_input_settings == '3':
                             print('You picked Change password')
                             new_password = input("Enter new password: ")
 
@@ -302,7 +300,7 @@ elif user_option == '2':
                             print("New password is added to your profile\n ")
 
                             break
-                        elif user_input == '4':
+                        elif user_input_settings == '4':
                             print('You picked Change PIN')
                             new_pin = input("Enter new PIN: ")
 
@@ -325,7 +323,7 @@ elif user_option == '2':
                             print("New PIN is added to your profile\n ")
 
                             break
-                        elif user_input == '5':
+                        elif user_input_settings == '5':
                             print('You picked Deactivate account')
 
                             # reading the CSV file
@@ -359,19 +357,19 @@ elif user_option == '2':
                                 break
                             break
                         
-                        elif user_input == '6':
+                        elif user_input_settings == '6':
                             print('You picked View Statements.\n')
                             print('Please choose one of the following options and press ENTER: 1) View All Transactions | 2) View Gains and Losses | 3) Compare Monthly Spending | 4) Get Quarterly Income Report ')
-                            user_input = input()
+                            user_input_settings = input()
     
-                        if user_input == '1':
+                        if user_input_settings == '1':
                             print('You picked View All Transactions')
                             username = "example_user"
                             account_transactions = get_account_summary(username)
                             for transaction in account_transactions:
                                 print(f"Date: {transaction['date']}, Amount: {transaction['amount']}")
             
-                        elif user_input == '2':
+                        elif user_input_settings == '2':
                             print('You picked View Gains and Losses')
                             username = "example_user"
                             account_transactions = get_account_summary(username)
@@ -380,7 +378,7 @@ elif user_option == '2':
                             print(f"Total gain: {total_gain}")
                             print(f"Total loss: {total_loss}")
         
-                        elif user_input == '3':
+                        elif user_input_settings == '3':
                             print('You picked Compare Monthly Spending')
                             username = "example_user"
                             month = int(input("Enter the month (1-12): "))
@@ -388,9 +386,17 @@ elif user_option == '2':
                             monthly_spending = calculate_monthly_spending(username, month, year)
                             print(f"Monthly spending for {month}/{year}: {monthly_spending}")
         
-                        elif user_input == '4':
+                        elif user_input_settings == '4':
+                            print('You picked Get Quarterly Income Report')
+                            # Generate the income report
+                            income_report = generate_income_report()
+
+    
+                            print("Quarterly Income Report:")
+                            for quarter, income in income_report.items():
+                                print(f"{quarter}: {income}")
                            
-                           # NEED CODE HERE
+                           # this part does not work
                         
                             break
                     else:
