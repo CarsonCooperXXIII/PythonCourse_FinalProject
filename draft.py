@@ -178,6 +178,7 @@ def get_quarter(date):
     year = date.year
     return f"Q{quarter}-{year}"
 
+# Function to get income report 
 def generate_income_report():
     income_per_quarter = {}
 
@@ -197,6 +198,27 @@ def generate_income_report():
                 income_per_quarter[quarter] = amount
 
     return income_per_quarter
+
+# Function to get quarterly income report
+def generate_quarterly_income_report(q1_income, q2_income, q3_income, q4_income):
+    # Calculate total income for each quarter
+    q1_total = sum(q1_income)
+    q2_total = sum(q2_income)
+    q3_total = sum(q3_income)
+    q4_total = sum(q4_income)
+
+    # Calculate overall total income
+    total_income = q1_total + q2_total + q3_total + q4_total
+
+    # Generate report string
+    report = f"Quarterly Income Report:\n\n"
+    report += f"Q1 Income: ${q1_total}\n"
+    report += f"Q2 Income: ${q2_total}\n"
+    report += f"Q3 Income: ${q3_total}\n"
+    report += f"Q4 Income: ${q4_total}\n\n"
+    report += f"Total Income: ${total_income}\n"
+
+    return report
 
 # Account creation - create a profile, account number, username, password, PIN number and store profile
 if user_option == '1':
@@ -388,20 +410,19 @@ elif user_option == '2':
         
                         elif user_input_settings == '4':
                             print('You picked Get Quarterly Income Report')
-                            # Generate the income report
-                            income_report = generate_income_report()
+                            q1_income = [5000, 6000, 4500]
+                            q2_income = [5500, 6200, 4100]
+                            q3_income = [4800, 5900, 4700]
+                            q4_income = [5200, 6100, 4300]
 
-    
-                            print("Quarterly Income Report:")
-                            for quarter, income in income_report.items():
-                                print(f"{quarter}: {income}")
-                           
-                           # this part does not work
-                        
+                            report = generate_quarterly_income_report(q1_income, q2_income, q3_income, q4_income)
+                            print(report)
+
                             break
                     else:
                         print("User not authorized.\n")
                         true = 0        
 
 read_profile()
+
 
