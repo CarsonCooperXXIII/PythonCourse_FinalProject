@@ -137,7 +137,7 @@ elif user_option == '2':
                     print('You picked View All Statements')
                     view_statements(username)
 
-                elif user_input_settings == '2':
+                elif user_input_statements == '2':
                     print('View Monthly statements')
                     user_input_month = input(
                         'Please input the month you want to see the statements and press ENTER: ')
@@ -146,7 +146,7 @@ elif user_option == '2':
                     view_monthly_statements(
                         username, user_input_month, user_input_year)
 
-                elif user_input_settings == '3':
+                elif user_input_statements == '3':
                     print(' View Insights')
                     user_input_insights = input(
                         'Pick one from the following settings options and press ENTER: 1) Compare Monthly Spending | 2) Quarterly Income Report '
@@ -176,7 +176,7 @@ elif user_option == '2':
                     else:
                         print('You choose NO')
 
-                elif user_input_settings == '2':
+                elif user_input_statements == '2':
                     print('Quarterly Income Report')
                     generate_quarterly_income_report(username)
             break
