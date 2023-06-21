@@ -176,7 +176,7 @@ elif user_option == '2':
                     else:
                         print('You choose NO')
 
-                elif user_input_statements == '2':
+                elif user_input_insights == '2':
                     print('Quarterly Income Report')
                     generate_quarterly_income_report(username)
             break
