@@ -1,3 +1,7 @@
+from datetime import datetime
+import string
+import random
+import csv
 print("==================================================")
 print("              ***** Final Project ****")
 print("==================================================\n")
@@ -12,222 +16,65 @@ print("2) Current users? Log In -> Open your account")
 print("--------------------------------------------------\n")
 
 
-import os.path
-import csv
-import string
-import random
-
-
 user_option = str(input("Enter a number option and press ENTER: "))
 print("\n")
 
+# ------------------------ Account Creation: Create a Profile------------------------------------------#
 
-#------------------------ Account Creation: Create a Profile------------------------------------------#
-class Profile:
-    def __init__(self, full_name, address, date_of_birth, business_name, date_of_incorporation, stakeholders,
-                 account_type):
-        self.full_name = full_name
-        self.address = address
-        self.date_of_birth = date_of_birth
-        self.business_name = business_name
-        self.date_of_incorporation = date_of_incorporation
-        self.stakeholders = stakeholders
-        self.account_type = account_type
-        self.account_number = self.generate_account_number()  # Create an account number
-        self.username = self.generate_username()  # Generate a username
-        self.password = self.generate_password()  # Generate a password
-        self.pin = self.generate_pin()  # Generate a pin
+if user_option == '1':
 
-    # Create an account number
-    def generate_account_number(self):
-        random_digits = ''.join(random.choices(string.digits, k=8))
-        business_name_initials = self.business_name[:2].upper()
-        account_number = f"{random_digits}-{business_name_initials}"
+    # Function to generate an account number
+    def generate_account_number(business_name):
+        account_number = ''.join(random.choices(string.digits, k=8))
+        account_number += '-' + business_name[:2].upper()
         return account_number
 
-    # Generate a Username
-    def generate_username(self):
-        first_initial = self.full_name[0].lower()
-        last_name = self.full_name.split()[-1].lower()
-        username = f"{first_initial}{last_name}"
-        return username
-
-    # Generate a Password
-    def generate_password(self):
-        password_length = random.randint(8, 12)
-        password_characters = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(random.choice(password_characters)
-                           for _ in range(password_length))
-        return password
-
-    # Generate a PIN Number
-    def generate_pin(self):
-        pin = ''.join(random.choices(string.digits, k=4))
-        return pin
-
-    def display_profile(self):
-        print("Full Name:", self.full_name)
-        print("Address:", self.address)
-        print("Date of Birth:", self.date_of_birth)
-        print("Business Name:", self.business_name)
-        print("Date of Incorporation:", self.date_of_incorporation)
-        print("Stakeholders & Equity:", self.stakeholders)
-        print("Account Type:", self.account_type)
-        print("Account Number:", self.account_number)
-        print("Username:", self.username)
-        print("Password:", self.password)
-        print("PIN:", self.pin)
-
-
-# Save Profile
-def save_profile(profile):
-    with open('profiles.csv', 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter='|', quoting=csv.QUOTE_ALL)
-        writer.writerow([profile.full_name, profile.address, profile.date_of_birth, profile.business_name,
-                         profile.date_of_incorporation, profile.stakeholders, profile.account_type,
-                         profile.account_number, profile.username, profile.password, profile.pin])
-
-
-# Function to view transactions for a specific user
-def view_transactions(username, month=None, year=None):
-    with open('profiles.csv', 'r') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='|')
-        transactions = list(csvreader)
-        transaction_count = 0
-        total_gain = 0
-        total_loss = 0
-
-        for transaction in transactions:
-            if transaction[8] == username:
-                transaction_date = transaction[1]
-                transaction_amount = float(transaction[2])
-                transaction_month, transaction_year = map(int, transaction_date.split('-'))
-
-                # Check if the transaction falls within the specified month and year
-                if month is not None and year is not None:
-                    if transaction_month != int(month) or transaction_year != int(year):
-                        continue
-
-                # Check if the transaction amount is in the expected format
-                if not transaction_amount.isdigit():
-                    print(f"Invalid transaction amount: {transaction_amount}")
-                    continue
-
-                transaction_amount = float(transaction_amount)
-
-                transaction_count += 1
-                if transaction_amount > 0:
-                    total_gain += transaction_amount
-                else:
-                    total_loss += transaction_amount
-
-                print(f"Date: {transaction_date} | Amount: {transaction_amount}")
-
-        # Include the monthly charge of $10 in the total loss
-        total_loss -= 10
-
-        print(f"Total transactions: {transaction_count}")
-        print(f"Total gain: {total_gain}")
-        print(f"Total loss: {total_loss}")
-
-# Function to compare monthly spending
-def compare_monthly_spending(username):
-    with open('profiles.csv', 'r') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='|')
-        transactions = list(csvreader)
-        monthly_spending = {}
-
-        for transaction in transactions:
-            if transaction[0] == username:
-                transaction_date = transaction[1]
-                transaction_amount = float(transaction[2])
-                transaction_month, transaction_year = map(int, transaction_date.split('-'))
-
-                if transaction_month in monthly_spending:
-                    monthly_spending[transaction_month] += transaction_amount
-                else:
-                    monthly_spending[transaction_month] = transaction_amount
-
-        print("Monthly Spending Comparison:")
-        for month, spending in monthly_spending.items():
-            print(f"Month: {month} | Spending: {spending}")
-
-# Function to get quarterly income report
-def get_quarterly_income_report(username):
-    with open('profiles.csv', 'r') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='|')
-        transactions = list(csvreader)
-        quarterly_income = {}
-
-        for transaction in transactions:
-            if transaction[0] == username:
-                transaction_date = transaction[1]
-                transaction_amount = float(transaction[2])
-                transaction_month, transaction_year = map(int, transaction_date.split('-'))
-                quarter = (transaction_month - 1) // 3 + 1
-
-                if quarter in quarterly_income:
-                    quarterly_income[quarter] += transaction_amount
-                else:
-                    quarterly_income[quarter] = transaction_amount
-
-        print("Quarterly Income Report:")
-        for quarter, income in quarterly_income.items():
-            print(f"Quarter: {quarter} | Income: {income}")
-            
-# Function to compare monthly spending
-def compare_monthly_spending(username):
-    with open('profiles.csv', 'r') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='|')
-        transactions = list(csvreader)
-        monthly_spending = {}
-
-        for transaction in transactions:
-            if transaction[8] == username:
-                transaction_date = transaction[1]
-                transaction_amount = float(transaction[2])
-                transaction_month, transaction_year = map(int, transaction_date.split('-'))
-
-                if transaction_month in monthly_spending:
-                    monthly_spending[transaction_month] += transaction_amount
-                else:
-                    monthly_spending[transaction_month] = transaction_amount
-
-        print("Monthly Spending Comparison:")
-        for month, spending in monthly_spending.items():
-            print(f"Month: {month} | Spending: {spending}")
-
-# Function to read user profile and perform actions
-def read_profile():
-    username = input("Enter your username: ")
-
-    view_transactions(username)
-    compare_monthly_spending(username)
-    get_quarterly_income_report(username)
-
-# Account creation - create a profile, account number, username, password, PIN number and store profile
-if user_option == '1':
+    # Function to create a new profile
     def create_profile():
-        full_name = input("Enter full name: ")
-        address = input("Enter address: ")
-        date_of_birth = input("Enter date of birth (YYYY-MM-DD): ")
-        business_name = input("Enter business name: ")
-        date_of_incorporation = input(
-            "Enter date of incorporation (YYYY-MM-DD): ")
-        stakeholders = input("Enter stakeholders & equity (comma-separated): ")
-        account_type = input(
-            "Enter account type (Small/Medium/Large/Enterprise): ")
+        full_name = input('Enter your full name: ')
+        address = input('Enter your address: ')
+        date_of_birth = input('Enter your date of birth: ')
+        business_name = input('Enter the name of your business: ')
+        date_of_incorporation = input('Enter the date of incorporation: ')
+        stakeholders_equity = input(
+            'Enter the list of stakeholders and equity: ')
 
-        profile = Profile(full_name, address, date_of_birth, business_name,
-                          date_of_incorporation, stakeholders, account_type)
-        return profile
+        print('Choose the type of account:')
+        print('1) Small Business Class')
+        print('2) Medium Business Class')
+        print('3) Large Business Class')
+        print('4) Enterprise Business')
+        account_type = input('Enter the account type (1/2/3/4): ')
 
-    profile = create_profile()
-    profile.display_profile()
-    save_profile(profile)
-    print("File created.")
+        account_number = generate_account_number(business_name)
 
-#-------------------------------------Current Users -  Login -----------------------------------------------------#
+        username = input('Enter a username: ')
+        password = input('Enter a password: ')
+        pin = input('Enter a 4-digit PIN number: ')
+
+        profile = {
+            'Full Name': full_name,
+            'Address': address,
+            'Date of Birth': date_of_birth,
+            'Business Name': business_name,
+            'Date of Incorporation': date_of_incorporation,
+            'Stakeholders & Equity': stakeholders_equity,
+            'Account Type': account_type,
+            'Account Number': account_number,
+            'Username': username,
+            'Password': password,
+            'PIN': pin
+        }
+
+        with open('profiles.csv', 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter='|')
+            writer.writerow(profile.values())
+
+        print('Profile created successfully.')
+
+    create_profile()
+
+# #-------------------------------------Current Users -  Login -----------------------------------------------------#
 elif user_option == '2':
 
     def read_profile():
@@ -237,164 +84,350 @@ elif user_option == '2':
         user_password = input('Enter your password and press ENTER: ')
         # input PIN
         user_pin = input('Enter your PIN and press ENTER: ')
-        
-        
-        with open('profiles.csv', 'r') as csvfile:
-            csvreader = csv.reader(csvfile, delimiter='|')
-            for row in csvreader:
-             
-                if row[8] == username and row[9] == user_password and row[10] == user_pin:
-                    print("User is Authorized\n")
-                    true = 1
-    
-                    # Settings
-                    while true:
-                        user_input = input(
-                            'Pick one from the following settings options and press ENTER: 1) View profile | 2) Change username | 3) Change password | 4) Change PIN | 5) Deactivate account | 6) View Statements- [1/2/3/4/5/6] ? ')
+        login_user(username, user_password, user_pin)
 
-                        if user_input == '1':
-                            print('You picked View profile')
-                            with open('profiles.csv', 'r') as csvfile:
-                                csvreader = csv.reader(csvfile, delimiter='|')
-                                for row in csvreader:
-                                    if row[8] == username and row[9] == user_password and row[10] == user_pin:
-                                        print(row)
-                            break
-                        
-                        elif user_input == '2':
-                            print('You picked Change username')
-                            new_username = input("Enter new username: ")
+        #  Settings------------Statements-------------------#
+        while True:
+            user_input_settings = input(
+                'Pick one from the following settings options and press ENTER: 1) View profile | 2) Change username | 3) Change password | 4) Change PIN | 5) Deactivate account | 6) View Statements - [1/2/3/4/5/6] ? '
+            )
 
-                            # reading the CSV file
-                            text = open("profiles.csv", "r")
+            if user_input_settings == '1':
+                print('You picked View profile')
+                profile = view_profile(username)
+                print('Current Profile:')
+                for key, value in profile.items():
+                    print(f'{key}: {value}')
 
-                            # join() method combines all contents of csvfile.csv and formed as a string
-                            text = ''.join([i for i in text])
+                break
 
-                            # search and replace the contents
-                            text = text.replace(username, new_username)
+            elif user_input_settings == '2':
+                print('You picked Change username')
+                new_username = input("Enter new username: ")
+                change_username(username, new_username)
 
-                            # profiles.csv opened in write mode
-                            x = open("profiles.csv", "w")
+                break
 
-                            # all the replaced text is written in the profiles.csv file
-                            x.writelines(text)
-                            x.close()
+            elif user_input_settings == '3':
+                print('You picked Change password')
+                new_password = input("Enter new password: ")
+                change_password(username, new_password)
 
-                            print("New username is added to your profile\n ")
+                break
 
-                          
-                        elif user_input == '3':
-                            print('You picked Change password')
-                            new_password = input("Enter new password: ")
+            elif user_input_settings == '4':
+                print('You picked Change PIN')
+                new_pin = input("Enter new PIN: ")
+                change_pin(username, new_pin)
 
-                            # reading the CSV file
-                            text = open("profiles.csv", "r")
+                break
 
-                            # join() method combines all contents of csvfile.csv and formed as a string
-                            text = ''.join([i for i in text])
+            elif user_input_settings == '5':
+                print('You picked Deactivate account')
+                deactivate_account(username)
 
-                            # search and replace the contents
-                            text = text.replace(user_password, new_password)
+                break
 
-                            # profiles.csv opened in write mode
-                            x = open("profiles.csv", "w")
+            if user_input_settings == '6':
+                print('You picked View Statements.\n')
+                print('Please choose one of the following options and press ENTER: 1) View All Statements | 2) View Monthly statements | 3) View Insights ')
+                user_input_statements = input()
 
-                            # all the replaced text is written in the profiles.csv file
-                            x.writelines(text)
-                            x.close()
+                if user_input_statements == '1':
+                    print('You picked View All Statements')
+                    view_statements(username)
 
-                            print("New password is added to your profile\n ")
+                elif user_input_settings == '2':
+                    print('View Monthly statements')
+                    user_input_month = input(
+                        'Please input the month you want to see the statements and press ENTER: ')
+                    user_input_year = input(
+                        'Please input the year and press ENTER: ')
+                    view_monthly_statements(
+                        username, user_input_month, user_input_year)
 
-                            break
-                        elif user_input == '4':
-                            print('You picked Change PIN')
-                            new_pin = input("Enter new PIN: ")
+                elif user_input_settings == '3':
+                    print(' View Insights')
+                    user_input_insights = input(
+                        'Pick one from the following settings options and press ENTER: 1) Compare Monthly Spending | 2) Quarterly Income Report '
+                    )
 
-                            # reading the CSV file
-                            text = open("profiles.csv", "r")
+                    if user_input_insights == '1':
+                        print('Compare Monthly Spending')
+                        user_input_compare_month1 = input(
+                            'Please input the month you want to compare with and press ENTER: '
+                        )
+                    user_input_compare_month2 = input(
+                        'Please input the month to which you want to compare with and press ENTER: '
+                    )
+                    user_input_compare_year = input(
+                        'Please input the year in which the months fall and press ENTER: '
+                    )
+                    compare_monthly_spending(username, user_input_compare_month1,
+                                             user_input_compare_year,
+                                             user_input_compare_month2,
+                                             user_input_compare_year)
 
-                            # join() method combines all contents of csvfile.csv and formed as a string
-                            text = ''.join([i for i in text])
-
-                            # search and replace the contents
-                            text = text.replace(user_pin, new_pin)
-
-                            # profiles.csv opened in write mode
-                            x = open("profiles.csv", "w")
-
-                            # all the replaced text is written in the profiles.csv file
-                            x.writelines(text)
-                            x.close()
-
-                            print("New PIN is added to your profile\n ")
-
-                            break
-                        elif user_input == '5':
-                            print('You picked Deactivate account')
-
-                            # reading the CSV file
-                            with open('profiles.csv', 'r') as csvfile:
-                                csvreader = csv.reader(csvfile, delimiter='|')
-                                profiles = list(csvreader)
-                                profile_exists = False
-
-                                for profile in profiles:
-                                    if profile[8] == username:
-                                        profile_exists = True
-                                        profiles.remove(profile)
-                                        break
-
-                            if profile_exists:
-                                with open('profiles.csv', 'w', newline='') as csvfile:
-                                    csvwriter = csv.writer(
-                                        csvfile, delimiter='|', quoting=csv.QUOTE_ALL)
-                                    for profile in profiles:
-                                        csvwriter.writerow(profile)
-
-                                user_file = f"users/{username}.txt"
-                                if os.path.exists(user_file):
-                                    os.remove(user_file)
-
-                                print(
-                                    f"Account for {username} has been deactivated and information deleted.")
-                            else:
-                                print(
-                                    f"Account for {username} does not exist.")
-                                break
-                            break
-                        
-                        elif user_input == '6':
-                            print('You picked View Statements.\n')
-                            print('')
-                            print('Please choose one of the following options and press ENTER: 1) View All Statements | 2) View Monthly Statements | 3) View Insights | 4) Get Quarterly Income Report ')
-                            
-                            user_input = input()
-                            if user_input == '1':
-                                print('You picked View All Statements.')
-                                view_transactions(username)
-                            
-                            elif user_input =='2':
-                                print('You picked View Monthly Statements.')
-                                print('Please enter the month and year for which you want to view transactions (YYYY-MM):')
-                                month_year = input()
-                                month, year = month_year.split('-')
-                                view_transactions(username, month, year)
-                            
-                            elif user_input == '3':
-                                print('You picked View Insights')
-                                print('')
-                                print('Please choose one of the following options and press ENTER: 1) Compare Monthly Spending | 2) Get Quarterly Income Report')
-                                insights_option = input()
-                                print(insights_option)
-                            
-                            elif user_input == '4':
-                                print('You picked Get Quarterly Income Report')
-
-                            break
+                    user_answer_monthly_fees = input(
+                        'Do you want to see your monthly fees, type YES or NO and press ENTER: '
+                    )
+                    if user_answer_monthly_fees == 'YES':
+                        charge_monthly_fee(username)
                     else:
-                        print("User not authorized.\n")
-                        true = 0        
-                        
-    read_profile()
+                        print('You choose NO')
 
+                elif user_input_settings == '2':
+                    print('Quarterly Income Report')
+                    generate_quarterly_income_report(username)
+            break
+
+    # Usage examples
+    # login_successful = login_user('john_doe', 'password123', '1234')
+    # if login_successful:
+    #     profile = view_profile('john_doe')
+    #     print('Current Profile:')
+    #     for key, value in profile.items():
+    #         print(f'{key}: {value}')
+
+    #     change_username('john_doe', 'jdoe')
+    #     change_password('jdoe', 'newpassword')
+    #     change_pin('jdoe', '4321')
+
+    #     deactivate_account('jdoe')
+    # else:
+    #     print('Invalid login credentials.')
+
+
+def login_user(username, password, pin):
+
+    with open('profiles.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        for row in csvreader:
+            if row[8] == username and row[9] == password and row[10] == pin:
+                print("User is Authorized\n")
+                return True
+
+            else:
+                print("User not authorized.\n")
+
+                return False
+
+
+def view_profile(username):
+    with open('profiles.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        for row in csvreader:
+            if row[8] == username:
+                profile = {
+                    'Full Name': row[0],
+                    'Address': row[1],
+                    'Date of Birth': row[2],
+                    'Business Name': row[3],
+                    'Date of Incorporation': row[4],
+                    'Stakeholders & Equity': row[5],
+                    'Account Type': row[6],
+                    'Account Number': row[7],
+                    'Username': row[8],
+                    'Password': row[9],
+                    'PIN': row[10]
+                }
+                return profile
+
+
+def change_username(username, new_username):
+    profiles = []
+    with open('profiles.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        for row in csvreader:
+            if row[8] == username:
+                row[8] = new_username
+            profiles.append(row)
+
+    with open('profiles.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='|')
+        writer.writerows(profiles)
+        print("New username is added to your profile\n ")
+
+
+def change_password(username, new_password):
+    profiles = []
+    with open('profiles.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        for row in csvreader:
+            if row[8] == username:
+                row[9] = new_password
+            profiles.append(row)
+
+    with open('profiles.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='|')
+        writer.writerows(profiles)
+        print("New password is added to your profile\n ")
+
+
+def change_pin(username, new_pin):
+    profiles = []
+    with open('profiles.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        for row in csvreader:
+            if row[8] == username:
+                row[10] = new_pin
+            profiles.append(row)
+
+    with open('profiles.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='|')
+        writer.writerows(profiles)
+        print("New PIN is added to your profile\n ")
+
+
+def deactivate_account(username):
+    profiles = []
+    with open('profiles.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        for row in csvreader:
+            if row[8] == username:
+                continue
+            profiles.append(row)
+
+    with open('profiles.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='|')
+        writer.writerows(profiles)
+
+    # Delete all transactions associated with the deactivated account
+    with open('transactions.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        transactions = []
+        for row in csvreader:
+            if row[0] != username:
+                transactions.append(row)
+
+    with open('transactions.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='|')
+        writer.writerows(transactions)
+
+    print('Account deactivated and all associated information deleted.')
+
+# ---------------------------------------------Statements functions ----------------------------------#
+
+
+def get_account_transactions(username):
+    with open('transactions.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        transactions = []
+        for row in csvreader:
+            if row[0] == username:
+                transaction = {
+                    'Date': row[1],
+                    'Amount': float(row[2]),
+                    'Description': row[3]
+                }
+                transactions.append(transaction)
+        return transactions
+
+
+def calculate_total_transactions_and_gain_loss(username):
+    transactions = get_account_transactions(username)
+    total_transactions = len(transactions)
+    total_gain = sum(transaction['Amount'] for transaction in transactions
+                     if transaction['Amount'] > 0)
+    total_loss = sum(transaction['Amount'] for transaction in transactions
+                     if transaction['Amount'] < 0)
+    return total_transactions, total_gain, total_loss
+
+
+def get_monthly_transactions(username, month, year):
+    with open('transactions.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='|')
+        transactions = []
+        for row in csvreader:
+            if row[0] == username:
+                transaction_date = datetime.strptime(row[1], '%Y-%m-%d')
+                if transaction_date.month == month and transaction_date.year == year:
+                    transaction = {
+                        'Date': row[1],
+                        'Amount': float(row[2]),
+                        'Description': row[3]
+                    }
+                    transactions.append(transaction)
+        return transactions
+
+
+def calculate_monthly_gain_loss(username, month, year):
+    transactions = get_monthly_transactions(username, month, year)
+    total_transactions = len(transactions)
+    total_gain = sum(transaction['Amount'] for transaction in transactions
+                     if transaction['Amount'] > 0)
+    total_loss = sum(transaction['Amount'] for transaction in transactions
+                     if transaction['Amount'] < 0)
+    return total_transactions, total_gain, total_loss
+
+
+def compare_monthly_spending(username, month1, year1, month2, year2):
+    transactions1 = get_monthly_transactions(username, month1, year1)
+    transactions2 = get_monthly_transactions(username, month2, year2)
+    total_spending1 = sum(transaction['Amount'] for transaction in transactions1
+                          if transaction['Amount'] < 0)
+    total_spending2 = sum(transaction['Amount'] for transaction in transactions2
+                          if transaction['Amount'] < 0)
+    return total_spending1, total_spending2
+
+
+def generate_quarterly_income_report(username):
+    current_year = datetime.now().year
+    quarters = [(1, current_year), (2, current_year), (3, current_year),
+                (4, current_year - 1)]
+    quarterly_reports = []
+    for quarter in quarters:
+        transactions = get_monthly_transactions(username, (quarter[0] - 1) * 3 + 1,
+                                                quarter[1])
+        total_gain = sum(transaction['Amount'] for transaction in transactions
+                         if transaction['Amount'] > 0)
+        total_loss = sum(transaction['Amount'] for transaction in transactions
+                         if transaction['Amount'] < 0)
+        quarterly_report = {
+            'Quarter': quarter,
+            'Gain': total_gain,
+            'Loss': total_loss
+        }
+        quarterly_reports.append(quarterly_report)
+    return quarterly_reports
+
+
+def charge_monthly_fee(username):
+    with open('transactions.csv', 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='|')
+        transaction = [
+            username,
+            datetime.now().strftime('%Y-%m-%d'), -10, 'Monthly fee'
+        ]
+        writer.writerow(transaction)
+
+
+def view_statements(username):
+    transactions = get_account_transactions(username)
+    total_transactions, total_gain, total_loss = calculate_total_transactions_and_gain_loss(
+        username)
+    print('All transactions:')
+    for transaction in transactions:
+        print(
+            f"Date: {transaction['Date']}, Amount: {transaction['Amount']}, Description: {transaction['Description']}"
+        )
+    print(f'Total number of transactions: {total_transactions}')
+    print(f'Total gain: {total_gain}')
+    print(f'Total loss: {total_loss}')
+
+
+def view_monthly_statements(username, month, year):
+    transactions = get_monthly_transactions(username, month, year)
+    total_transactions, total_gain, total_loss = calculate_monthly_gain_loss(
+        username, month, year)
+    print(f'Monthly statements for {month}/{year}:')
+    for transaction in transactions:
+        print(
+            f"Date: {transaction['Date']}, Amount: {transaction['Amount']}, Description: {transaction['Description']}"
+        )
+    print(f'Total number of transactions: {total_transactions}')
+    print(f'Total gain: {total_gain}')
+    print(f'Total loss: {total_loss}')
+
+
+read_profile()
